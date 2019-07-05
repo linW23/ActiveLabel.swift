@@ -23,10 +23,27 @@ struct RegexParser {
         return elementRegex.matches(in: text, options: [], range: range)
     }
 
+    
+    static func getCustomElement(from text: String, with pattern: String, range: NSRange) -> [NSTextCheckingResult]{
+        guard let elementRegex = regularCustomExpression(for: pattern) else { return [] }
+        return elementRegex.matches(in: text, options: [], range: range)
+    }
+    
     private static func regularExpression(for pattern: String) -> NSRegularExpression? {
         if let regex = cachedRegularExpressions[pattern] {
             return regex
         } else if let createdRegex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) {
+            cachedRegularExpressions[pattern] = createdRegex
+            return createdRegex
+        } else {
+            return nil
+        }
+    }
+    
+    private static func regularCustomExpression(for pattern: String) -> NSRegularExpression? {
+        if let regex = cachedRegularExpressions[pattern] {
+            return regex
+        } else if let createdRegex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive, .ignoreMetacharacters]) {
             cachedRegularExpressions[pattern] = createdRegex
             return createdRegex
         } else {
